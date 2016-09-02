@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title>ifotos</title>
+    <meta charset="UTF-8">
+
+    
+    <link rel="stylesheet"  href="css/materialize.css">
+    <script type="text/javascript" src="js/func.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+
+
+
+    <style>
+        .canto {
+            position: fixed;
+            _position:absolute;
+            _margin-bottom:0;
+            _margin-right:0;
+            right:0;
+            bottom:0;
+            z-index:100;
+        }
+        .outrocanto{ 
+            position: fixed;
+            _position:absolute;
+            _margin-bottom:0;
+            _margin-left:0;
+            left:0;
+            bottom:0;
+            z-index:100;
+        }
+    </style>
+
+</head>
+
+<body>
+    <nav>
+      <a href="inicio.html" class="brand-logo">IFotos </a>
+
+  </nav>
+
+  
+  <br>
+  <center> <h4>Diario </br> de </br> Fotos </h4></br>
+    <h5> O que voce quer ver?</h5>
+</center>      
+<br><br>
+<!-- sera colocado os botoes-->
+<center>
+    <div id="tags">
+
+    </div>
+    <br/> 
+
+
+</center>
+
+<!--<button onclick="window.location='foto.html'" >Take Picture</button>-->
+<div class="canto">
+   <a class="btn-floating btn-large waves-effect waves-light blue">
+       <i class="material-icons" onclick="window.location='foto.html'">add
+
+       </i>
+     <!--
+     <img class="material-icons" src="images/ic_camera_enhance_white_36dp.png" onclick="window.location='foto.html'"/>-->
+
+ </a>
+</div>
+
+
+<!--<div class="button" id="buttonid">Take </div>-->
+
+
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript">
+
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    function populateDB(tx) {
+    }
+
+    function queryDB(tx) {
+      tx.executeSql('SELECT DISTINCT(tag) FROM foto', [], querySuccess, errorCB);
+  }
+
+  function reply_click(x){
+    localStorage.setItem('caminho',x);
+    window.location='mostraFoto.html';
+}
+
+function querySuccess(tx, results) {
+  var t = results.rows.length;
+
+  for (var i=0; i<t; i++){
+    var tags = document.getElementById('tags').innerHTML;
+    
+    document.getElementById('tags').innerHTML = tags + " <button class=\"btn waves-effect waves-light blue\"  id="+results.rows.item(i).tag+" onClick=\"reply_click(this.id)\">"+results.rows.item(i).tag+"</button>";
+    
+}
+if( t == 0 )
+ document.getElementById('tags').innerHTML = 'Nenhuma hashtag encontrada!';
+
+}
+
+function errorCB(err) {
+    console.log("Error processing SQL: "+err.code);
+}
+
+function successCB() {
+    var db = window.openDatabase("ifotos", "1.0", "iFotos", 200000);
+    db.transaction(queryDB, errorCB);
+}
+
+function onDeviceReady() {
+    var db = window.openDatabase("ifotos", "1.0", "iFotos", 200000);
+    db.transaction(populateDB, errorCB, successCB);
+}
+
+</script>
+
+</body>
+</html>

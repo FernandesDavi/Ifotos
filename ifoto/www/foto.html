@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title>ifotos</title>
+
+    <link rel="stylesheet"  href="css/materialize.css">
+    <script type="text/javascript" src="js/func.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+
+
+
+    <style>
+        .canto {
+            position: fixed;
+            _position:absolute;
+            _margin-bottom:0;
+            _margin-right:0;
+            right:0;
+            bottom:0;
+            z-index:100;
+        }
+        .outrocanto{ 
+            position: fixed;
+            _position:absolute;
+            _margin-bottom:0;
+            _margin-left:0;
+            left:0;
+            bottom:0;
+            z-index:100;
+        }
+    </style>
+
+
+    <script type="text/javascript">
+        var novoId = 0;
+        var imagem = '';
+        var i = 0;
+        var x = 0;
+
+
+    </script>
+
+</head>
+
+<body>
+
+ <nav>
+  <a href="inicio.html" class="brand-logo">IFotos </a>
+
+</nav>
+
+<div id="line"></div>
+
+<label for="first_name">Nova Postagem</label>
+
+
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript">
+
+    document.addEventListener("deviceready", onDeviceReady_BD, false);
+
+    function populateDB(tx) {
+      if( i != 0 ){
+       
+       if( document.getElementById('tag').value != '' && imagem != '' ){
+        var tag = document.getElementById('tag').value;
+        tx.executeSql('INSERT INTO foto ( tag, caminho) VALUES ("'+tag+'", "'+imagem+'")');
+        x = 1;
+    }else{
+        alert("Preencha todos os campos corretamente!");	
+    }
+    
+}else{
+   i = 1;	
+}
+}
+
+function queryDB(tx) {
+  tx.executeSql('SELECT * FROM foto', [], querySuccess, errorCB);
+}
+
+function querySuccess(tx, results) {
+	
+  if( x == 1 ){
+   alert("Postagem efetuada com sucesso!");
+   window.location = 'inicio.html';
+}
+
+}
+
+function errorCB(err) {
+    console.log("Error processing SQL: "+err.code);
+}
+
+function successCB() {
+    var db = window.openDatabase("ifotos", "1.0", "iFotos", 200000);
+    db.transaction(queryDB, errorCB);
+}
+
+function onDeviceReady_BD() {
+    var db = window.openDatabase("ifotos", "1.0", "iFotos", 200000);
+    db.transaction(populateDB, errorCB, successCB);
+}
+
+</script>
+
+<script type="text/javascript" charset="utf-8">
+    var pictureSource;
+    var destinationType;
+
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+
+    function onDeviceReady() {
+        pictureSource = navigator.camera.PictureSourceType;
+        destinationType = navigator.camera.DestinationType;
+    }
+
+    function onPhotoDataSuccess(imageData) {
+
+        var date = ""
+        var d = new Date();
+        date = "" + d.getDate() + "-" + (d.getMonth() + 1) + "-"
+        + d.getFullYear();
+
+        var smallImage = document.getElementById('smallImage');
+
+        smallImage.style.display = 'block';
+
+        smallImage.src = "data:image/jpeg;base64," + imageData;
+        
+		// salva a imagem no banco
+		imagem = imageData;
+
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+
+        function gotFS(fileSystem) {
+            fileSystem.root.getFile("image/" + date + ".jpeg", {
+                create : true,
+                exclusive : false
+            }, gotFileEntry, fail);
+        }
+        function gotFileEntry(fileEntry) {
+            fileEntry.createWriter(gotFileWriter, fail);
+        }
+        function gotFileWriter(writer) {
+            var data = "data:image/jpeg;base64," + imageData;
+            writer.write(data);
+
+        }
+        function fail(error) {
+            console.log(error.code);
+        }
+    }
+
+
+    function onPhotoURISuccess(imageURI) {
+
+        var largeImage = document.getElementById('largeImage');
+
+        largeImage.style.display = 'block';
+
+        largeImage.src = imageURI;
+    }
+
+
+    function capturePhoto() {
+        navigator.camera.getPicture(onPhotoDataSuccess, onFail, {
+            quality : 50,
+            destinationType : destinationType.DATA_URL
+        });
+    }
+
+    function capturePhotoEdit() {
+        navigator.camera.getPicture(onPhotoDataSuccess, onFail, {
+            quality : 20,
+            allowEdit : true,
+            destinationType : destinationType.DATA_URL
+        });
+    }
+
+    function getPhoto(source) {
+        navigator.camera.getPicture(onPhotoURISuccess, onFail, {
+            quality : 50,
+            destinationType : destinationType.FILE_URI,
+            sourceType : source
+        });
+    }
+
+    function onFail(message) {
+      
+    }
+    function savePhoto(source) {
+
+    }
+</script>
+
+
+
+
+
+<img style="width:100%;" id="smallImage" src="" />
+
+<br /><br />
+
+<input type="text" id="tag" placeholder="tag" style="width:99%" />
+
+<br /><br />
+<center>
+    <input type="button" class="btn waves-effect waves-light blue" value="Postar" onclick="onDeviceReady_BD()" />
+</center>
+<div class="canto">
+ <a class="btn-floating btn-large waves-effect waves-light blue">
+     <i class="material-icons" onClick="capturePhoto();">camera</i>
+ </a>
+ <script type="text/javascript">
+ </script>
+</body>
+</html>

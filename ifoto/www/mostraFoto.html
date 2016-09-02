@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title>ifotos</title>
+
+    <link rel="stylesheet" href="css/conteudo.css" type="text/css" />
+
+    <script type="text/javascript" src="js/func.js"></script>
+    <style type="text/css">
+
+        .tagImagem {
+            margin:0 0 15px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <label id="titulotag" >
+
+    </label>
+
+    <div id="tags">
+
+    </div>
+
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/hash.js"></script>
+    <script type="text/javascript">
+
+        document.addEventListener("deviceready", onDeviceReady, false);
+
+        function populateDB(tx) {
+        }
+
+        function queryDB(tx) {
+            var tag = localStorage.getItem('caminho');
+            document.getElementById('titulotag').innerHTML = tag;
+            tx.executeSql("SELECT * FROM foto WHERE tag = ?", [tag], querySuccess, errorCB);
+        }
+
+        function querySuccess(tx, results) {
+            var len = results.rows.length;
+
+            for (var i=0; i<len; i++){
+                var html = document.getElementById('tags').innerHTML;
+                document.getElementById('tags').innerHTML = html + "<div class=\"tagImagem\"><img src=\"data:image/jpeg;base64,"+results.rows.item(i).caminho +"\" width=\"100%\" /></div>";
+
+            }
+        }
+
+        function errorCB(err) {
+            console.log("Error processing SQL: "+err.code);
+        }
+
+        function successCB() {
+            var db = window.openDatabase("ifotos", "1.0", "iFotos", 200000);
+            db.transaction(queryDB, errorCB);
+        }
+
+        function onDeviceReady() {
+            var db = window.openDatabase("ifotos", "1.0", "iFotos", 200000);
+            db.transaction(populateDB, errorCB, successCB);
+        }
+
+    </script>
+
+</body>
+</html>
